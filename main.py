@@ -12,6 +12,9 @@ ms.timeout = 0
 
 load_dotenv()
 
+sqlite_file_name = os.getenv("DB_NAME")
+sqlite_url = os.getenv("DB_URL")
+
 class Tag(SQLModel, table=True):
     """Skapar bordet 'Tag' i databasen"""
     id: Optional[int] = Field(default=None, primary_key=True)
@@ -24,9 +27,6 @@ class Scan(SQLModel, table=True):
     tag_id: str
     date: str
     time: str
-
-sqlite_file_name = os.getenv("DB_NAME")
-sqlite_url = os.getenv("DB_URL")
 
 engine = create_engine(sqlite_url, echo=False)
 
