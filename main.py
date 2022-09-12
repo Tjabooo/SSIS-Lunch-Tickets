@@ -15,36 +15,36 @@ load_dotenv()
 sqlite_file_name = os.getenv("DB_NAME")
 sqlite_url = os.getenv("DB_URL")
 
-class Tag(SQLModel, table=True):
+class Tag(SQLModel, table = True):
     """Skapar bordet 'Tag' i databasen"""
-    id: Optional[int] = Field(default=None, primary_key=True)
+    id: Optional[int] = Field(default = None, primary_key = True)
     tag_id: str
     valid: bool
 
-class Scan(SQLModel, table=True):
+class Scan(SQLModel, table = True):
     """Skapar bordet 'Scan' i databasen"""
-    id: Optional[int] = Field(default=None, primary_key=True)
+    id: Optional[int] = Field(default = None, primary_key = True)
     tag_id: str
     date: str
     time: str
 
-engine = create_engine(sqlite_url, echo=False)
+engine = create_engine(sqlite_url, echo = False)
 
 SQLModel.metadata.create_all(engine)
 
 def create_tag(uid):
     """Lägger till en tagg i bordet 'Tag', där den räknas som registrerad och känd"""
     session = Session(engine)
-    
-    session.add(Tag(tag_id=uid, valid=True))
-    
+
+    session.add(Tag(tag_id = uid, valid = True))
+
     session.commit()
 
 def create_scan(uid):
     """Lägger till en skanning med en registrerad tagg i bordet 'Scan', inklusive datum och tid"""
     session = Session(engine)
 
-    session.add(Scan(tag_id=uid, date=today, time=ctime))
+    session.add(Scan(tag_id = uid, date = today, time = ctime))
 
     session.commit()
 
@@ -55,9 +55,10 @@ ctime = datetime.now().time().strftime("%H:%M:%S")
 registering = bool
 is_valid = bool
 
-def check_tag(comm, obj, uid):
-    """Gör lite roliga grejor :)"""
+def check_tag(_, _, uid):
+    """Grundlogiken i koden, kontrollerar om taggen är registrerad eller inte"""
     if registering:
+        """Om taggen inte är registrerad, registrera den"""
         with Session(engine) as session:
             statement = select(Tag).where(Tag.tag_id == uid)
             results = session.exec(statement)
@@ -65,13 +66,14 @@ def check_tag(comm, obj, uid):
                 print("En tagg med den här UID finns redan.")
                 return
             print(f"Lade till taggen med UID: {uid}")
-            create_tag(uid)  
+            create_tag(uid)
     else:
+        """Om taggen är registrerad, skriv ut den"""
         with Session(engine) as session:
-            valid_stmnt = select(Tag).where(Tag.tag_id == uid and Tag.valid == True)
-            valid_rslt = session.exec(valid_stmnt)
+            valid_statement = select(Tag).where(Tag.tag_id == uid and Tag.valid == True)
+            valid_result = session.exec(valid_statement)
             is_valid = False
-            for tag in valid_rslt:
+            for tag in valid_result:
                 is_valid = True
             if is_valid:
                 statement = select(Scan).where(Scan.tag_id == uid and Scan.date == today)
