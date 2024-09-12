@@ -28,7 +28,7 @@ class Scan(SQLModel, table = True):
 sqlite_file_name = os.getenv("DB_NAME")
 sqlite_url = os.getenv("DB_URL")
 
-engine = create_engine(sqlite_url, echo = False) # Skapar en engine som tillåter interaktion med databasen
+engine = create_engine(sqlite_url, echo = False)
 SQLModel.metadata.create_all(engine)
 
 def register(uid):
@@ -91,15 +91,16 @@ def count(date):
         print(f"----------\nDet skedde {total} skanningar under {date}")
 
 print('----------\n1. Skanna\n2. Registrera\n3. Räkna skanningar\n----------')
-user_input = int(input("Välj: ")) # Frågar användaren vad de vill göra med skriptet
+user_input = int(input("Välj: "))
 print("----------")
 
-if user_input == 1:
-    registering = False
-elif user_input == 2:
-    registering = True
-elif user_input == 3:
-    count(str(input("Skriv datum (DD/MM/ÅÅ): ")))
+match user_input:
+    case 1:
+        registering = False
+    case 2:
+        registering = True
+    case 3:
+        count(str(input("Skriv datum (DD/MM/ÅÅ): ")))
 
 ms.port_read_callback = check
 ms.Start()
